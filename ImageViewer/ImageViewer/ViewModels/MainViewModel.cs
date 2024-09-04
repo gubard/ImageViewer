@@ -45,7 +45,7 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var files = Directory.GetFiles(DirectoryPath);
+        var files = Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories);
 
         if (files.Length == 0)
         {
