@@ -6,14 +6,18 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ImageViewer.Views.MainView"
              x:DataType="vm:MainViewModel">
-    
+
     <Panel>
-        <StackPanel >
-            <TextBlock Text="{Binding DirectoryPath}"/>
-            <Button Command="{Binding OpenDirectoryCommand}" Content="Open directory"/>
-            <Button Command="{Binding RunSlideshowCommand}" Content="Run Slideshow"/>
+        <StackPanel>
+            <TextBlock Text="{Binding DirectoryPath}" />
+            <TextBlock Text="{Binding CurrentImagePath}" />
+            <NumericUpDown Value="{Binding TimeoutSeconds}" />
+            <Button Command="{Binding OpenDirectoryCommand}" Content="Open directory" />
+            <Button Command="{Binding RunSlideshowCommand}" Content="Run Slideshow" />
+            <Button Command="{Binding StopSlideshowCommand}" Content="Stop Slideshow" />
+            <Button Command="{Binding DeleteImageCommand}" Content="Delete image" />
         </StackPanel>
-        
+
         <Image Source="{Binding CurrentImage}" />
     </Panel>
 </UserControl>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -11,6 +12,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ImageViewer.Helpers;
+using ImageViewer.Services;
 
 namespace ImageViewer.ViewModels;
 
@@ -22,7 +25,17 @@ public partial class MainViewModel : ViewModelBase
     private string directoryPath = string.Empty;
 
     [ObservableProperty]
+    private string currentImagePath = string.Empty;
+
+    [ObservableProperty]
+    private ushort timeoutSeconds = 12;
+
+    [ObservableProperty]
     private IImage? currentImage;
+
+    private FileInfo? currentImageFile;
+
+    private CancellationTokenSource cancellationTokenSource = new();
 
     public MainViewModel()
     {
@@ -30,6 +43,29 @@ public partial class MainViewModel : ViewModelBase
         {
             directoryPath = File.ReadAllText(DirectoryPathStoragePath);
         }
+    }
+
+    [RelayCommand]
+    private void DeleteImage()
+    {
+        if (currentImageFile is null)
+        {
+            return;
+        }
+
+        if (!currentImageFile.Exists)
+        {
+            return;
+        }
+
+        currentImageFile.Delete();
+    }
+
+    [RelayCommand]
+    private void StopSlideshow()
+    {
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource = new();
     }
 
     [RelayCommand]
@@ -45,17 +81,18 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var files = Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories);
+        var directorySelector = new DirectorySelector(new(DirectoryPath), 2, 5);
+        var token = cancellationTokenSource.Token;
 
-        if (files.Length == 0)
+        while (!token.IsCancellationRequested)
         {
-            return;
-        }
+            currentImageFile = directorySelector.GetNextFile();
+            CurrentImage = new Bitmap(currentImageFile.FullName);
+            CurrentImagePath = currentImageFile.FullName;
 
-        while (true)
-        {
-            CurrentImage = new Bitmap(files[RandomNumberGenerator.GetInt32(0, files.Length)]);
-            await Task.Delay(TimeSpan.FromSeconds(15));
+            await Wrap.IgnoreCancelAsync(
+                () => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token)
+            );
         }
     }
 
