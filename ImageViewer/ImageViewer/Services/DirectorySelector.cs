@@ -61,7 +61,10 @@ public class DirectorySelector
 
             if (directories.Length == 0)
             {
-                throw new DirectoryNotFoundException();
+                i = 0;
+                result = directory;
+
+                continue;
             }
 
             if (directories.Length == 1)
