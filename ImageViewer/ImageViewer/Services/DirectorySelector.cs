@@ -29,6 +29,7 @@ public class DirectorySelector
         {
             currentCount = 0;
             currentDirectory = GetRandomDirectory();
+            files.Clear();
             files.AddRange(currentDirectory.GetFiles("*", SearchOption.AllDirectories));
 
             if (files.Count == 0)
