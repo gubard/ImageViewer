@@ -18,16 +18,12 @@ public partial class MainViewModel : ViewModelBase
     public const string DirectoryPathStoragePath = "./storage/DirectoryPath.txt";
 
     [ObservableProperty] private string directoryPath = string.Empty;
-
     [ObservableProperty] private string currentImagePath = string.Empty;
-
     [ObservableProperty] private ushort timeoutSeconds = 12;
-
     [ObservableProperty] private IImage? currentImage;
-
     private FileInfo? currentImageFile;
-
     private CancellationTokenSource cancellationTokenSource = new();
+    private DirectorySelector? directorySelector;
 
     public MainViewModel()
     {
@@ -37,11 +33,26 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
-    private void NextImage()
+    private async Task NextImage()
     {
         StopSlideshow();
-        RunSlideshowAsync();
+
+        directorySelector ??= new(new(DirectoryPath));
+        var token = cancellationTokenSource.Token;
+
+        while (!token.IsCancellationRequested)
+        {
+            currentImageFile = directorySelector.GetNextFile();
+            CurrentImage = new Bitmap(currentImageFile.FullName);
+            CurrentImagePath = currentImageFile.FullName;
+            await Wrap.IgnoreCancelAsync(() => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token));
+        }
+    }
+
+    [RelayCommand]
+    private void NextImageUi()
+    {
+        NextImage();
     }
 
     [RelayCommand]
@@ -58,6 +69,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         currentImageFile.Delete();
+        NextImage();
     }
 
     [RelayCommand]
@@ -68,7 +80,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task RunSlideshowAsync()
+    private void RunOrNextDirectorySlideshow()
     {
         if (string.IsNullOrWhiteSpace(DirectoryPath))
         {
@@ -80,16 +92,8 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var directorySelector = new DirectorySelector(new(DirectoryPath), 2);
-        var token = cancellationTokenSource.Token;
-
-        while (!token.IsCancellationRequested)
-        {
-            currentImageFile = directorySelector.GetNextFile();
-            CurrentImage = new Bitmap(currentImageFile.FullName);
-            CurrentImagePath = currentImageFile.FullName;
-            await Wrap.IgnoreCancelAsync(() => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token));
-        }
+        directorySelector = new(new(DirectoryPath));
+        NextImage();
     }
 
     [RelayCommand]

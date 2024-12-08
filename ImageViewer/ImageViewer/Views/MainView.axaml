@@ -26,10 +26,10 @@
             <TextBlock Text="{Binding CurrentImagePath}" />
             <NumericUpDown Value="{Binding TimeoutSeconds}" />
             <Button Command="{Binding OpenDirectoryCommand}" Content="Open directory" />
-            <Button Command="{Binding RunSlideshowCommand}" Content="Run Slideshow" />
+            <Button Command="{Binding RunOrNextDirectorySlideshowCommand}" Content="Run slideshow or next directory" />
             <Button Command="{Binding StopSlideshowCommand}" Content="Stop Slideshow" />
             <Button Command="{Binding DeleteImageCommand}" Content="Delete image" />
-            <Button Command="{Binding NextImageCommand}" Content="Next image" />
+            <Button Command="{Binding NextImageUiCommand}" Content="Next image" />
         </StackPanel>
     </Panel>
 </UserControl>
