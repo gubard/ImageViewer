@@ -6,9 +6,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ImageViewer.Views.MainView"
              x:DataType="vm:MainViewModel">
+    <UserControl.Styles>
+        <Style Selector="StackPanel.tools">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+
+        <Style Selector="StackPanel.tools:pointerover">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Background" Value="#33FF0000" />
+        </Style>
+    </UserControl.Styles>
 
     <Panel>
-        <StackPanel>
+        <Image Source="{Binding CurrentImage}" />
+
+        <StackPanel Classes="tools">
             <TextBlock Text="{Binding DirectoryPath}" />
             <TextBlock Text="{Binding CurrentImagePath}" />
             <NumericUpDown Value="{Binding TimeoutSeconds}" />
@@ -16,8 +29,7 @@
             <Button Command="{Binding RunSlideshowCommand}" Content="Run Slideshow" />
             <Button Command="{Binding StopSlideshowCommand}" Content="Stop Slideshow" />
             <Button Command="{Binding DeleteImageCommand}" Content="Delete image" />
+            <Button Command="{Binding NextImageCommand}" Content="Next image" />
         </StackPanel>
-
-        <Image Source="{Binding CurrentImage}" />
     </Panel>
 </UserControl>

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageViewer.Helpers;
@@ -21,17 +17,13 @@ public partial class MainViewModel : ViewModelBase
 {
     public const string DirectoryPathStoragePath = "./storage/DirectoryPath.txt";
 
-    [ObservableProperty]
-    private string directoryPath = string.Empty;
+    [ObservableProperty] private string directoryPath = string.Empty;
 
-    [ObservableProperty]
-    private string currentImagePath = string.Empty;
+    [ObservableProperty] private string currentImagePath = string.Empty;
 
-    [ObservableProperty]
-    private ushort timeoutSeconds = 12;
+    [ObservableProperty] private ushort timeoutSeconds = 12;
 
-    [ObservableProperty]
-    private IImage? currentImage;
+    [ObservableProperty] private IImage? currentImage;
 
     private FileInfo? currentImageFile;
 
@@ -43,6 +35,13 @@ public partial class MainViewModel : ViewModelBase
         {
             directoryPath = File.ReadAllText(DirectoryPathStoragePath);
         }
+    }
+
+    [RelayCommand]
+    private void NextImage()
+    {
+        StopSlideshow();
+        RunSlideshowAsync();
     }
 
     [RelayCommand]
@@ -81,7 +80,7 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var directorySelector = new DirectorySelector(new(DirectoryPath), 2, 5);
+        var directorySelector = new DirectorySelector(new(DirectoryPath), 2);
         var token = cancellationTokenSource.Token;
 
         while (!token.IsCancellationRequested)
@@ -89,20 +88,14 @@ public partial class MainViewModel : ViewModelBase
             currentImageFile = directorySelector.GetNextFile();
             CurrentImage = new Bitmap(currentImageFile.FullName);
             CurrentImagePath = currentImageFile.FullName;
-
-            await Wrap.IgnoreCancelAsync(
-                () => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token)
-            );
+            await Wrap.IgnoreCancelAsync(() => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token));
         }
     }
 
     [RelayCommand]
     private async Task OpenDirectoryAsync()
     {
-        if (
-            Application.Current?.ApplicationLifetime
-            is not IClassicDesktopStyleApplicationLifetime appLifetime
-        )
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime appLifetime)
         {
             return;
         }
@@ -123,9 +116,7 @@ public partial class MainViewModel : ViewModelBase
 
         if (!Directory.Exists(Path.GetDirectoryName(DirectoryPathStoragePath)))
         {
-            Directory.CreateDirectory(
-                Path.GetDirectoryName(DirectoryPathStoragePath) ?? string.Empty
-            );
+            Directory.CreateDirectory(Path.GetDirectoryName(DirectoryPathStoragePath) ?? string.Empty);
         }
 
         await File.WriteAllTextAsync(DirectoryPathStoragePath, DirectoryPath);
