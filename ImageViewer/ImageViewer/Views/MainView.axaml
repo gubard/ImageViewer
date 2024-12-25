@@ -17,6 +17,11 @@
             <Setter Property="Background" Value="#33FF0000" />
         </Style>
     </UserControl.Styles>
+    
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Right" Command="{Binding NextImageUiCommand}" />
+        <KeyBinding Gesture="Space" Command="{Binding RunOrNextDirectorySlideshowCommand}" />
+    </UserControl.KeyBindings>
 
     <Panel>
         <Image Source="{Binding CurrentImage}" />
@@ -24,6 +29,11 @@
         <StackPanel Classes="tools">
             <TextBlock Text="{Binding DirectoryPath}" />
             <TextBlock Text="{Binding CurrentImagePath}" />
+           <StackPanel Orientation="Horizontal">
+               <TextBlock Text="{Binding FilesCountSaw}" />
+               <TextBlock Text="/" />
+               <TextBlock Text="{Binding FilesCount}" />
+           </StackPanel>
             <NumericUpDown Value="{Binding TimeoutSeconds}" />
             <Button Command="{Binding OpenDirectoryCommand}" Content="Open directory" />
             <Button Command="{Binding RunOrNextDirectorySlideshowCommand}" Content="Run slideshow or next directory" />

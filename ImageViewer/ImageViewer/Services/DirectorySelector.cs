@@ -6,10 +6,8 @@ namespace ImageViewer.Services;
 
 public class DirectorySelector
 {
-    private readonly DirectoryInfo rootDirectory;
-    private DirectoryInfo currentDirectory;
-    private readonly List<DirectoryInfo> directories;
-    private readonly List<FileInfo> files;
+    public ulong FilesCount { get; private set; }
+    public ulong FilesCountSaw { get; private set; }
 
     public DirectorySelector(DirectoryInfo rootDirectory)
     {
@@ -17,6 +15,7 @@ public class DirectorySelector
         directories = [..rootDirectory.GetDirectories("*", SearchOption.AllDirectories),];
         currentDirectory = GetNextDirectory();
         files = [..currentDirectory.GetFiles("*", SearchOption.AllDirectories),];
+        FilesCount = (ulong)files.Count;
     }
 
     public FileInfo GetNextFile()
@@ -25,16 +24,17 @@ public class DirectorySelector
         {
             currentDirectory = GetNextDirectory();
             files.AddRange(currentDirectory.GetFiles("*", SearchOption.AllDirectories));
+            FilesCount = (ulong)files.Count;
+            FilesCountSaw = 0;
 
             if (files.Count == 0)
             {
-                currentDirectory.Delete(true);
-
-                return GetNextFile();
+                throw new(currentDirectory.ToString());
             }
         }
 
         var result = files[0];
+        FilesCountSaw++;
         files.Remove(result);
 
         return result;
@@ -51,4 +51,9 @@ public class DirectorySelector
 
         return result;
     }
+    
+    private readonly DirectoryInfo rootDirectory;
+    private DirectoryInfo currentDirectory;
+    private readonly List<DirectoryInfo> directories;
+    private readonly List<FileInfo> files;
 }

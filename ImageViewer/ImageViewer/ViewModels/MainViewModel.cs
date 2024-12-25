@@ -21,6 +21,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private string currentImagePath = string.Empty;
     [ObservableProperty] private ushort timeoutSeconds = 12;
     [ObservableProperty] private IImage? currentImage;
+    [ObservableProperty] private ulong filesCount;
+    [ObservableProperty] private ulong filesCountSaw;
     private FileInfo? currentImageFile;
     private CancellationTokenSource cancellationTokenSource = new();
     private DirectorySelector? directorySelector;
@@ -45,6 +47,8 @@ public partial class MainViewModel : ViewModelBase
             currentImageFile = directorySelector.GetNextFile();
             CurrentImage = new Bitmap(currentImageFile.FullName);
             CurrentImagePath = currentImageFile.FullName;
+            FilesCount = directorySelector.FilesCount;
+            FilesCountSaw = directorySelector.FilesCountSaw;
             await Wrap.IgnoreCancelAsync(() => Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), token));
         }
     }
